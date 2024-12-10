@@ -1,94 +1,119 @@
-// Helper function for natural sorting
-function naturalSortKey(s) {
-  return s.split(/(\d+)/).map(part => (isNaN(part) ? part.toLowerCase() : parseInt(part, 10)));
+// Function to generate a UTC timestamp
+function getUtcTimestamp() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
 }
 
-// Function to validate the LSX file
-function validateLsxFile(lines) {
-  const regionIdLine = lines[3]?.trim(); // Line 4
-  const nodeIdLine = lines[4]?.trim(); // Line 5
-  return (
-    regionIdLine === '<region id="MaterialBank">' &&
-    nodeIdLine === '<node id="MaterialBank">'
-  );
-}
+// Function to process and validate .lsx content
+function processLSXContent(fileContent, fileName) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(fileContent, "text/xml");
 
-// Function to update line 10 in .lsx files and extract shader file
-function updateLine10AndGetShader(line) {
-  let shaderFile = null;
-  const match = line.match(/value="([^"]+)"/);
-  if (match) {
-    const originalValue = match[1];
-    let newValue = originalValue.replace(/Public\/[^/]+\/Assets/, "Public/Shared/Assets");
-    newValue = newValue.replace(/_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/g, "");
-    shaderFile = newValue.split("/").pop();
-    line = line.replace(originalValue, newValue);
-  }
-  return { updatedLine: line, shaderFile };
-}
+    // Validate XML structure
+    const region = xmlDoc.querySelector("region[id='MaterialBank']");
+    const node = xmlDoc.querySelector("node[id='MaterialBank']");
 
-// Function to process LSX files
-async function processLsxFiles(files) {
-  const outputZip = new JSZip();
-  const reportLines = [];
-  const outputDir = "Updated_Materials_RDY/";
-
-  for (let file of files) {
-    if (file.name.endsWith(".lsx")) {
-      const fileContent = await file.text();
-      const lines = fileContent.split("\n");
-
-      // Validate the file based on lines 4 and 5
-      if (!validateLsxFile(lines)) {
-        console.warn(`File "${file.name}" is invalid and will be skipped.`);
-        continue;
-      }
-
-      const updatedContent = [];
-      let materialName = null;
-      let shaderFile = null;
-
-      lines.forEach((line, idx) => {
-        if (idx === 8) { // Line 9
-          const match = line.match(/value="([^"]+)"/);
-          if (match) {
-            materialName = match[1];
-          }
-        } else if (idx === 9) { // Line 10
-          const result = updateLine10AndGetShader(line);
-          updatedContent.push(result.updatedLine);
-          shaderFile = result.shaderFile;
-        } else {
-          updatedContent.push(line);
-        }
-      });
-
-      const updatedFileName = file.name;
-      outputZip.file(`${outputDir}${updatedFileName}`, updatedContent.join("\n"));
-
-      if (materialName && shaderFile) {
-        reportLines.push({ materialName, updatedFileName, shaderFile });
-      }
-    } else {
-      console.warn(`File "${file.name}" is not an .lsx file and will be skipped.`);
+    if (!region || !node) {
+        throw new Error(`File ${fileName} is invalid: Missing required <region> or <node> with id='MaterialBank'.`);
     }
-  }
 
-  // Generate and download ZIP
-  const zipBlob = await outputZip.generateAsync({ type: "blob" });
-  const downloadLink = document.createElement("a");
-  downloadLink.href = URL.createObjectURL(zipBlob);
-  downloadLink.download = "Processed_Files.zip";
-  downloadLink.click();
+    // Find and process <attribute> elements
+    const resourceNodes = xmlDoc.querySelectorAll("node[id='Resource']");
+    let reportEntries = [];
+    resourceNodes.forEach((resourceNode) => {
+        const sourceFileAttr = resourceNode.querySelector("attribute[id='SourceFile']");
+        const nameAttr = resourceNode.querySelector("attribute[id='Name']");
+        if (sourceFileAttr) {
+            const originalValue = sourceFileAttr.getAttribute("value");
+            const newValue = originalValue
+                .replace(/Public\/[^/]+\/Assets/, "Public/Shared/Assets")
+                .replace(/_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/, "");
+
+            sourceFileAttr.setAttribute("value", newValue);
+
+            // Collect report details
+            reportEntries.push({
+                materialName: nameAttr ? nameAttr.getAttribute("value") : "Unknown",
+                shaderFile: newValue.split("/").pop(),
+                fileName: fileName,
+            });
+        }
+    });
+
+    // Serialize XML back to string
+    const serializer = new XMLSerializer();
+    const updatedContent = serializer.serializeToString(xmlDoc);
+    return { updatedContent, reportEntries };
 }
 
-// UI Logic
-document.getElementById("fileInput").addEventListener("change", async (event) => {
-  const files = event.target.files;
-  if (files.length > 0) {
-    await processLsxFiles(files);
-    alert("Processing complete! Download started.");
-  } else {
-    alert("Please select at least one .lsx file.");
-  }
-});
+// Function to process multiple .lsx files and generate a report
+async function handleFileProcessing(files) {
+    const processedFiles = [];
+    const reportLines = [];
+
+    for (const file of files) {
+        const content = await file.text();
+
+        try {
+            const { updatedContent, reportEntries } = processLSXContent(content, file.name);
+            processedFiles.push({ name: file.name, content: updatedContent });
+            reportLines.push(...reportEntries);
+        } catch (error) {
+            console.error(`Error processing file ${file.name}: ${error.message}`);
+        }
+    }
+
+    // Generate Update_Report.txt
+    const reportContent = reportLines
+        .map(
+            (entry, index) =>
+                `${String(index + 1).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
+        )
+        .join("\n");
+    processedFiles.push({
+        name: "Update_Report.txt",
+        content: reportContent,
+    });
+
+    return processedFiles;
+}
+
+// Function to generate a ZIP file containing updated files and the report
+function generateZip(processedFiles) {
+    const zip = new JSZip();
+    processedFiles.forEach(({ name, content }) => {
+        zip.file(name, content);
+    });
+    return zip.generateAsync({ type: "blob" });
+}
+
+// Initialize the app
+function initializeApp() {
+    const inputElement = document.getElementById("fileInput");
+    const downloadButton = document.getElementById("downloadButton");
+
+    inputElement.addEventListener("change", async (event) => {
+        const files = Array.from(event.target.files);
+        const processedFiles = await handleFileProcessing(files);
+        const zipBlob = await generateZip(processedFiles);
+
+        // Generate UTC timestamp
+        const timestamp = getUtcTimestamp();
+
+        // Create download link for ZIP with timestamp in filename
+        const url = URL.createObjectURL(zipBlob);
+        downloadButton.href = url;
+        downloadButton.download = `Processed_Files_${timestamp}.zip`;
+        downloadButton.style.display = "block";
+        downloadButton.textContent = "Download Processed Files";
+    });
+}
+
+// Initialize on DOM content loaded
+document.addEventListener("DOMContentLoaded", initializeApp);
