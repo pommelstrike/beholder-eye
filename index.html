@@ -2,14 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSX File Processor</title>
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-  <script defer src="lsx_processor.js"></script>
+  <script defer src="app.js"></script>
+  <style>
+    /* Add some basic styling */
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #downloadButton {
+      display: none;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    #downloadButton:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
   <h1>LSX File Processor</h1>
-  <p>Drop your .lsx files below to process and download the updated files:</p>
-  <input type="file" id="fileInput" multiple />
+  <p>Select your .lsx files to process:</p>
+  <input type="file" id="fileInput" multiple accept=".lsx" />
+  <br />
+  <a id="downloadButton">Download Processed Files</a>
 </body>
 </html>
