@@ -1,133 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LSX File Processor</title>
-  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-  <script defer src="app.js"></script>
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      const dropZone = document.getElementById('dropZone');
+document.addEventListener('DOMContentLoaded', initializeApp);
 
-      dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#2C2C2C'; // Highlight on drag
-      });
+function initializeApp() {
+  const dropZone = document.getElementById('dropZone');
 
-      dropZone.addEventListener('dragleave', () => {
-        dropZone.style.backgroundColor = '#1F1F1F'; // Revert on drag leave
-      });
+  // Check if the drop zone exists
+  if (!dropZone) {
+    console.error("Drop zone element not found. Ensure the HTML element with ID 'dropZone' exists.");
+    return;
+  }
 
-      dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.backgroundColor = '#1F1F1F'; // Revert on drop
+  // Add drag-and-drop event listeners
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.backgroundColor = '#2C2C2C'; // Highlight on drag
+  });
 
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-          handleFiles(files);
-        } else {
-          alert('No files detected. Please try again.');
-        }
-      });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.style.backgroundColor = '#1F1F1F'; // Revert on drag leave
+  });
 
-      function handleFiles(files) {
-        const messageArea = document.createElement('div');
-        messageArea.id = 'fileMessage';
-        messageArea.style.marginTop = '20px';
-        messageArea.style.color = '#03DAC5';
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.backgroundColor = '#1F1F1F'; // Revert on drop
 
-        document.body.appendChild(messageArea);
-        messageArea.innerHTML = '<strong>Processing files:</strong>';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFiles(files);
+    } else {
+      alert('No files detected. Please try again.');
+    }
+  });
 
-        for (const file of files) {
-          if (file.name.endsWith('.lsx')) {
-            console.log(`Processing file: ${file.name}`);
-            const fileMessage = document.createElement('p');
-            fileMessage.textContent = `Processing file: ${file.name}`;
-            messageArea.appendChild(fileMessage);
-          } else {
-            alert(`Unsupported file type: ${file.name}`);
-          }
-        }
+  // Function to handle dropped files
+  function handleFiles(files) {
+    const messageArea = document.createElement('div');
+    messageArea.id = 'fileMessage';
+    messageArea.style.marginTop = '20px';
+    messageArea.style.color = '#03DAC5';
+
+    document.body.appendChild(messageArea);
+    messageArea.innerHTML = '<strong>Processing files:</strong>';
+
+    for (const file of files) {
+      if (file.name.endsWith('.lsx')) {
+        console.log(`Processing file: ${file.name}`);
+        const fileMessage = document.createElement('p');
+        fileMessage.textContent = `Processing file: ${file.name}`;
+        messageArea.appendChild(fileMessage);
+      } else {
+        alert(`Unsupported file type: ${file.name}`);
       }
-    });
-  </script>
-  <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
     }
-
-    body {
-      font-family: 'Noto Sans', sans-serif;
-      line-height: 1.6;
-      background-color: #121212; /* Material Black */
-      color: #e0e0e0; /* Material Text Primary */
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      color: #BB86FC; /* Material Purple */
-    }
-
-    p {
-      margin-bottom: 20px;
-      text-align: center;
-      max-width: 800px;
-      color: #B0B0B0; /* Material Text Secondary */
-    }
-
-    #dropZone {
-      margin-top: 20px;
-      padding: 50px;
-      width: 80%;
-      max-width: 800px;
-      border: 2px dashed #03DAC5; /* Material Teal */
-      border-radius: 10px;
-      text-align: center;
-      font-size: 1.2em;
-      color: #B0B0B0; /* Material Text Secondary */
-      background-color: #1F1F1F; /* Slightly lighter black */
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #dropZone:hover {
-      background-color: #2C2C2C; /* Slightly lighter hover */
-      color: #ffffff; /* Full white */
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      text-align: center;
-      color: #757575; /* Material Disabled Text */
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsf files for console compatibility.</h1>
-  </header>
-  <main>
-    <p>
-      Materialbank parser for BG3 .lsx source files to redirect MOD KIT generated project shaders to pre-packaged BG3 game shaders for Game Console compatibility.
-    </p>
-    <p>
-      Pull the .lsf files into LSLIB's "LSF to LSX" tab from <code>Data\Public&lt;ModName_UUID&gt;\Assets</code>. Do not use BG3 Multitool. Use the .lsf files from the Project folders as listed above. The one piece is real.
-    </p>
-    <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
-    <div id="dropZone">Drag and drop your .lsx files here</div>
-  </main>
-  <footer>
-    <p>&copy; 2024 LSX File Processor</p>
-  </footer>
-</body>
-</html>
+  }
+}
