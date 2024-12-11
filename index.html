@@ -17,8 +17,8 @@
     body {
       font-family: Arial, sans-serif;
       line-height: 1.6;
-      background-color: #f4f4f9;
-      color: #333;
+      background-color: #1e1e2f;
+      color: #f5f5f5;
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -33,36 +33,27 @@
     p {
       margin-bottom: 20px;
       text-align: center;
-      max-width: 600px;
+      max-width: 800px;
     }
 
-    #fileInput {
-      margin: 20px 0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #fileInput:hover {
-      border-color: #4CAF50;
-    }
-
-    #downloadButton {
-      display: none;
+    #dropZone {
       margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border: none;
-      border-radius: 5px;
+      padding: 50px;
+      width: 80%;
+      max-width: 800px;
+      border: 2px dashed #4CAF50;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.2em;
+      color: #aaa;
+      background-color: #2e2e3f;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s, color 0.3s;
     }
 
-    #downloadButton:hover {
-      background-color: #45a049;
+    #dropZone:hover {
+      background-color: #3e3e4f;
+      color: #fff;
     }
 
     footer {
@@ -71,26 +62,11 @@
       text-align: center;
       color: #777;
     }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-
-      p {
-        font-size: 0.9em;
-      }
-
-      #downloadButton {
-        width: 100%;
-      }
-    }
   </style>
 </head>
 <body>
   <header>
-    <h1>LSX File Processor</h1>
-    <p>A tool to parse and process .lsx files for BG3 console compatibility.</p>
+    <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsf files for console compatibility.</h1>
   </header>
   <main>
     <p>
@@ -99,12 +75,11 @@
     <p>
       Pull the .lsf files into LSLIB's "LSF to LSX" tab from <code>Data\Public&lt;ModName_UUID&gt;\Assets</code>. Do not use BG3 Multitool. Use the .lsf files from the Project folders as listed above. The one piece is real.
     </p>
-    <input type="file" id="fileInput" multiple accept=".lsx" />
-    <button id="downloadButton">Download Processed Files</button>
+    <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
+    <div id="dropZone">Drag and drop your .lsx files here</div>
   </main>
   <footer>
-    <p>&copy; 2024 LSX File Processor | Made with <span style="color: red;">&hearts;</span></p>
+    <p>&copy; 2024 LSX File Processor</p>
   </footer>
 </body>
 </html>
-
