@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSX File Processor</title>
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script defer src="app.js"></script>
   <script defer>
     document.addEventListener('DOMContentLoaded', () => {
       const dropZone = document.getElementById('dropZone');
@@ -25,14 +26,26 @@
         const files = e.dataTransfer.files;
         if (files.length > 0) {
           handleFiles(files);
+        } else {
+          alert('No files detected. Please try again.');
         }
       });
 
       function handleFiles(files) {
+        const messageArea = document.createElement('div');
+        messageArea.id = 'fileMessage';
+        messageArea.style.marginTop = '20px';
+        messageArea.style.color = '#03DAC5';
+
+        document.body.appendChild(messageArea);
+        messageArea.innerHTML = '<strong>Processing files:</strong>';
+
         for (const file of files) {
           if (file.name.endsWith('.lsx')) {
             console.log(`Processing file: ${file.name}`);
-            // Add logic to process files here
+            const fileMessage = document.createElement('p');
+            fileMessage.textContent = `Processing file: ${file.name}`;
+            messageArea.appendChild(fileMessage);
           } else {
             alert(`Unsupported file type: ${file.name}`);
           }
