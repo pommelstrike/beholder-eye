@@ -55,7 +55,10 @@ function processLSXContent(fileContent, fileName) {
 // Function to process multiple .lsx files and generate a report
 async function handleFileProcessing(files) {
     const processedFiles = [];
-    const reportLines = ["If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"];
+    const reportLines = [
+        "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
+    ];
+    let globalIndex = 1; // Initialize a global index for numerical sequence
 
     for (const file of files) {
         const content = await file.text();
@@ -63,9 +66,13 @@ async function handleFileProcessing(files) {
         try {
             const { updatedContent, reportEntries } = processLSXContent(content, file.name);
             processedFiles.push({ name: file.name, content: updatedContent });
-            reportLines.push(...reportEntries.map((entry, index) =>
-                `${String(index + 1).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
-            ));
+
+            // Add report entries with proper sequence
+            reportEntries.forEach((entry) => {
+                reportLines.push(
+                    `${String(globalIndex++).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
+                );
+            });
         } catch (error) {
             console.error(`Error processing file ${file.name}: ${error.message}`);
         }
@@ -116,7 +123,8 @@ function initializeApp() {
         downloadButton.style.display = "block";
         downloadButton.textContent = "Download Processed Files";
 
-        // Display status message
+        // Display Patreon message and status
+        document.getElementById("patreonMessage").style.display = "block";
         statusMessage.textContent = "All Done!";
     });
 }
