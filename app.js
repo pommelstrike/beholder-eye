@@ -55,7 +55,7 @@ function processLSXContent(fileContent, fileName) {
 // Function to process multiple .lsx files and generate a report
 async function handleFileProcessing(files) {
     const processedFiles = [];
-    const reportLines = [];
+    const reportLines = ["If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"];
 
     for (const file of files) {
         const content = await file.text();
@@ -63,19 +63,16 @@ async function handleFileProcessing(files) {
         try {
             const { updatedContent, reportEntries } = processLSXContent(content, file.name);
             processedFiles.push({ name: file.name, content: updatedContent });
-            reportLines.push(...reportEntries);
+            reportLines.push(...reportEntries.map((entry, index) =>
+                `${String(index + 1).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
+            ));
         } catch (error) {
             console.error(`Error processing file ${file.name}: ${error.message}`);
         }
     }
 
-    // Generate Update_Report.txt
-    const reportContent = reportLines
-        .map(
-            (entry, index) =>
-                `${String(index + 1).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
-        )
-        .join("\n");
+    // Add report to processed files
+    const reportContent = reportLines.join("\n");
     processedFiles.push({
         name: "Update_Report.txt",
         content: reportContent,
@@ -97,8 +94,14 @@ function generateZip(processedFiles) {
 function initializeApp() {
     const inputElement = document.getElementById("fileInput");
     const downloadButton = document.getElementById("downloadButton");
+    const statusMessage = document.createElement("div");
+    statusMessage.id = "statusMessage";
+    statusMessage.style.marginTop = "20px";
+    statusMessage.style.color = "#03DAC5";
+    document.body.appendChild(statusMessage);
 
     inputElement.addEventListener("change", async (event) => {
+        statusMessage.textContent = "Processing files... Please wait.";
         const files = Array.from(event.target.files);
         const processedFiles = await handleFileProcessing(files);
         const zipBlob = await generateZip(processedFiles);
@@ -106,12 +109,15 @@ function initializeApp() {
         // Generate UTC timestamp
         const timestamp = getUtcTimestamp();
 
-        // Create download link for ZIP with timestamp in filename
+        // Create download link for ZIP with renamed file
         const url = URL.createObjectURL(zipBlob);
         downloadButton.href = url;
-        downloadButton.download = `Processed_Files_${timestamp}.zip`;
+        downloadButton.download = `LSX_processed_files_${timestamp}.zip`;
         downloadButton.style.display = "block";
         downloadButton.textContent = "Download Processed Files";
+
+        // Display status message
+        statusMessage.textContent = "All Done!";
     });
 }
 
