@@ -2,15 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSX File Processor</title>
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
   <script defer src="app.js"></script>
   <style>
-    /* Add some basic styling */
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f4f4f9;
+      color: #333;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #4CAF50;
+    }
+
+    p {
+      margin-bottom: 20px;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    #fileInput {
+      margin: 20px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #fileInput:hover {
+      border-color: #4CAF50;
+    }
+
     #downloadButton {
       display: none;
       margin-top: 20px;
@@ -18,23 +55,56 @@
       background-color: #4CAF50;
       color: white;
       text-decoration: none;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
     }
+
     #downloadButton:hover {
       background-color: #45a049;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      text-align: center;
+      color: #777;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+
+      p {
+        font-size: 0.9em;
+      }
+
+      #downloadButton {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>LSX File Processor</h1>
-  <p>Select your .lsx files to process:</p>
-   <br>
-  Materialbank parser for BG3 .lsx source files to redirect MOD KIT GENERATED project shaders to pre-packaged BG3 game shader for Game Console compatibility.
-
-You know the drill, pull the .lsf files into LSLIB " LSF, to LSX, " tab from Data\Public<ModName_UUID>\Assets Do not use BG3 mulittool as that is from the .pak, no use the .lsf from the Project folders as listed above. The one piece is real.
-   <br />
-  <input type="file" id="fileInput" multiple accept=".lsx" />
-  <br />
-  <a id="downloadButton">Download Processed Files</a>
+  <header>
+    <h1>LSX File Processor</h1>
+    <p>A tool to parse and process .lsx files for BG3 console compatibility.</p>
+  </header>
+  <main>
+    <p>
+      Materialbank parser for BG3 .lsx source files to redirect MOD KIT generated project shaders to pre-packaged BG3 game shaders for Game Console compatibility.
+    </p>
+    <p>
+      Pull the .lsf files into LSLIB's "LSF to LSX" tab from <code>Data\Public&lt;ModName_UUID&gt;\Assets</code>. Do not use BG3 Multitool. Use the .lsf files from the Project folders as listed above. The one piece is real.
+    </p>
+    <input type="file" id="fileInput" multiple accept=".lsx" />
+    <button id="downloadButton">Download Processed Files</button>
+  </main>
+  <footer>
+    <p>&copy; 2024 LSX File Processor | Made with <span style="color: red;">&hearts;</span></p>
+  </footer>
 </body>
 </html>
+
