@@ -10,46 +10,31 @@ function getUtcTimestamp() {
     return `${year}${month}${day}_${hours}${minutes}${seconds}`;
 }
 
-// Function to process and validate .lsx content
-function processLSXContent(fileContent, fileName) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(fileContent, "text/xml");
+// Function to handle folder traversal and build Markdown tree for .bshd files
+async function generateMarkdownTree(dataTransfer) {
+    const markdownLines = [];
 
-    // Validate XML structure
-    const region = xmlDoc.querySelector("region[id='MaterialBank']");
-    const node = xmlDoc.querySelector("node[id='MaterialBank']");
-
-    if (!region || !node) {
-        throw new Error(`File ${fileName} is invalid: Missing required <region> or <node> with id='MaterialBank'.`);
+    async function traverseDirectory(entry, path = "") {
+        if (entry.isFile && entry.name.endsWith(".bshd")) {
+            markdownLines.push(`${path}- ${entry.name}`);
+        } else if (entry.isDirectory) {
+            const reader = entry.createReader();
+            const entries = await new Promise((resolve) => reader.readEntries(resolve));
+            markdownLines.push(`${path}- ${entry.name}/`);
+            for (const subEntry of entries) {
+                await traverseDirectory(subEntry, `${path}  `);
+            }
+        }
     }
 
-    // Find and process <attribute> elements
-    const resourceNodes = xmlDoc.querySelectorAll("node[id='Resource']");
-    let reportEntries = [];
-    resourceNodes.forEach((resourceNode) => {
-        const sourceFileAttr = resourceNode.querySelector("attribute[id='SourceFile']");
-        const nameAttr = resourceNode.querySelector("attribute[id='Name']");
-        if (sourceFileAttr) {
-            const originalValue = sourceFileAttr.getAttribute("value");
-            const newValue = originalValue
-                .replace(/Public\/[^/]+\/Assets/, "Public/Shared/Assets")
-                .replace(/_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/, "");
-
-            sourceFileAttr.setAttribute("value", newValue);
-
-            // Collect report details
-            reportEntries.push({
-                materialName: nameAttr ? nameAttr.getAttribute("value") : "Unknown",
-                shaderFile: newValue.split("/").pop(),
-                fileName: fileName,
-            });
+    for (const item of dataTransfer.items) {
+        const entry = item.webkitGetAsEntry();
+        if (entry.isDirectory) {
+            await traverseDirectory(entry);
         }
-    });
+    }
 
-    // Serialize XML back to string
-    const serializer = new XMLSerializer();
-    const updatedContent = serializer.serializeToString(xmlDoc);
-    return { updatedContent, reportEntries };
+    return markdownLines.join("\n");
 }
 
 // Function to process multiple .lsx files and generate a report
@@ -58,7 +43,7 @@ async function handleFileProcessing(files) {
     const reportLines = [
         "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
     ];
-    let globalIndex = 1; // Initialize a global index for numerical sequence
+    let globalIndex = 1;
 
     for (const file of files) {
         const content = await file.text();
@@ -67,7 +52,6 @@ async function handleFileProcessing(files) {
             const { updatedContent, reportEntries } = processLSXContent(content, file.name);
             processedFiles.push({ name: file.name, content: updatedContent });
 
-            // Add report entries with proper sequence
             reportEntries.forEach((entry) => {
                 reportLines.push(
                     `${String(globalIndex++).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
@@ -78,7 +62,6 @@ async function handleFileProcessing(files) {
         }
     }
 
-    // Add report to processed files
     const reportContent = reportLines.join("\n");
     processedFiles.push({
         name: "Update_Report.txt",
@@ -99,7 +82,9 @@ function generateZip(processedFiles) {
 
 // Initialize the app
 function initializeApp() {
-    const inputElement = document.getElementById("fileInput");
+    const modeToggle = document.getElementById("modeToggle");
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
     const downloadButton = document.getElementById("downloadButton");
     const statusMessage = document.createElement("div");
     statusMessage.id = "statusMessage";
@@ -107,25 +92,74 @@ function initializeApp() {
     statusMessage.style.color = "#03DAC5";
     document.body.appendChild(statusMessage);
 
-    inputElement.addEventListener("change", async (event) => {
-        statusMessage.textContent = "Processing files... Please wait.";
-        const files = Array.from(event.target.files);
-        const processedFiles = await handleFileProcessing(files);
-        const zipBlob = await generateZip(processedFiles);
+    let currentMode = "lsx"; // Default mode
 
-        // Generate UTC timestamp
-        const timestamp = getUtcTimestamp();
+    modeToggle.addEventListener("click", () => {
+        currentMode = currentMode === "lsx" ? "bshd" : "lsx";
+        modeToggle.textContent = currentMode === "lsx" ? "Switch to Markdown Tree Mode" : "Switch to LSX Processing Mode";
+        dropZone.textContent =
+            currentMode === "lsx" ? "Drag and drop your .lsx files here" : "Drag and drop your folder here";
+    });
 
-        // Create download link for ZIP with renamed file
-        const url = URL.createObjectURL(zipBlob);
-        downloadButton.href = url;
-        downloadButton.download = `LSX_processed_files_${timestamp}.zip`;
-        downloadButton.style.display = "block";
-        downloadButton.textContent = "Download Processed Files";
+    dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = "#2C2C2C";
+    });
 
-        // Display Patreon message and status
-        document.getElementById("patreonMessage").style.display = "block";
-        statusMessage.textContent = "All Done!";
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.style.backgroundColor = "#1F1F1F";
+    });
+
+    dropZone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        dropZone.style.backgroundColor = "#1F1F1F";
+
+        if (currentMode === "lsx") {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event("change"));
+            }
+        } else if (currentMode === "bshd") {
+            statusMessage.textContent = "Generating Markdown tree... Please wait.";
+            try {
+                const markdownTree = await generateMarkdownTree(e.dataTransfer);
+                const blob = new Blob([markdownTree], { type: "text/markdown" });
+                const url = URL.createObjectURL(blob);
+                downloadButton.href = url;
+                downloadButton.download = `Markdown_Tree_${getUtcTimestamp()}.md`;
+                downloadButton.style.display = "block";
+                downloadButton.textContent = "Download Markdown Tree";
+                statusMessage.textContent = "All Done!";
+            } catch (error) {
+                console.error("Error generating markdown tree:", error);
+                statusMessage.textContent = "An error occurred. Please try again.";
+            }
+        }
+    });
+
+    dropZone.addEventListener("click", () => {
+        if (currentMode === "lsx") {
+            fileInput.click();
+        }
+    });
+
+    fileInput.addEventListener("change", async (event) => {
+        if (currentMode === "lsx") {
+            statusMessage.textContent = "Processing files... Please wait.";
+            const files = Array.from(event.target.files);
+            const processedFiles = await handleFileProcessing(files);
+            const zipBlob = await generateZip(processedFiles);
+
+            const timestamp = getUtcTimestamp();
+            const url = URL.createObjectURL(zipBlob);
+            downloadButton.href = url;
+            downloadButton.download = `LSX_processed_files_${timestamp}.zip`;
+            downloadButton.style.display = "block";
+            downloadButton.textContent = "Download Processed Files";
+            document.getElementById("patreonMessage").style.display = "block";
+            statusMessage.textContent = "All Done!";
+        }
     });
 }
 
