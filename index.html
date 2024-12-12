@@ -8,17 +8,42 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
   <script defer src="app.js"></script>
   <style>
-    /* Add your styling here */
     body {
       font-family: Arial, sans-serif;
       background-color: #191919;
       color: #e0e0e0;
+      margin: 0;
+      padding: 0;
     }
     #dropZone {
       border: 2px dashed #5f6d45;
       padding: 20px;
       text-align: center;
       cursor: pointer;
+      margin: 20px;
+    }
+    #downloadButton {
+      display: none;
+      padding: 10px 20px;
+      background-color: #5f6d45;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      display: inline-block;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #downloadButton:hover {
+      background-color: #4a5433;
+    }
+    header, footer {
+      text-align: center;
+      margin: 20px;
+    }
+    footer p {
+      font-size: 0.8em;
+      color: #888888;
     }
   </style>
 </head>
@@ -31,57 +56,15 @@
     <button id="modeToggle">Switch to Markdown Tree Mode</button>
     <div id="dropZone">Drag and drop your files here</div>
     <input type="file" id="fileInput" multiple style="display: none;" />
-<a id="downloadButton" style="display: none; padding: 10px 20px; background-color: #5f6d45; color: white; text-decoration: none; border-radius: 5px; font-size: 1.2em; display: inline-block; text-align: center;">
-    <i class="fas fa-download"></i> Download Processed Files
-</a>
+    <a id="downloadButton">
+      <i class="fas fa-download"></i> Download Processed Files
+    </a>
     <p id="patreonMessage" style="display: none;">
       If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
     </p>
   </main>
   <footer>
-    <p>Made with rage by pommelstrike </p>
-  </footer>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LSX File Processor</title>
-  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-  <script defer src="app.js"></script>
-  <style>
-    /* Add your styling here */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #191919;
-      color: #e0e0e0;
-    }
-    #dropZone {
-      border: 2px dashed #5f6d45;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>pommelstrike's BeholderEye Tool</h1>
-    <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
-  </header>
-  <main>
-    <button id="modeToggle">Switch to Markdown Tree Mode</button>
-    <div id="dropZone">Drag and drop your files here</div>
-    <input type="file" id="fileInput" multiple style="display: none;" />
-    <a id="downloadButton" style="display: none;">Download Processed Files</a>
-    <p id="patreonMessage" style="display: none;">
-      If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
-    </p>
-  </main>
-  <footer>
-    <p>Made with rage by pommelstrike </p>
+    <p>Made with rage by pommelstrike</p>
   </footer>
 </body>
 </html>
