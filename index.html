@@ -108,16 +108,16 @@
   <main>
     <button id="modeToggle">Switch to Markdown Tree Mode</button>
     <p id="lsxSummary">
-      <strong>LSX Processing Mode:</strong> This mode allows you to process MaterialBank shader files. Drag and drop your `.lsx` files, and the tool will automatically repoint the shader references to ensure compatibility with Baldur's Gate 3 game engines. Once processed, you can download the updated `.lsx` files and an update report.
+      <strong>LSX Processing Mode:</strong> This mode allows you to process MaterialBank shader files. Once you have convert the .lsf to .lsx using LSlib, Drag and drop your .lsx files, and the tool will automatically repoint the shader references in MaterialBank .lsx files to ensure compatibility with Baldur's Gate 3 game engines. Once processed, you can download the updated .lsx files and an update report.
     </p>
     <p>
-      Use this mode if you are working on a modding project and need to adjust the shader references in your MaterialBank files for deployment. This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
+      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
     </p>
     <p id="bshdSummary" style="display: none;">
-      <strong>Markdown Tree Mode:</strong> This mode scans a folder and generates a Markdown tree structure of the directory. The tree highlights `.bshd` shader files, allowing you to review the assets in your modding project.
+      <strong>Markdown Tree Mode:</strong> This mode scans a folder and generates a Markdown tree structure of the directory. The tree highlights the location of .bshd shader files, allowing you to locate and remove them.
     </p>
     <p style="display: none;">
-      Use this mode if you need an organized view of all `.bshd` shader files in your project. It is especially useful for keeping track of assets in larger folders or verifying shader files in an asset directory.
+       you only need to drop "\steamapps\common\Baldurs Gate 3\Data\Public\mod_project_name_uuid\Assets folder" but you also scan all your public folder.
     </p>
     <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
     <div id="dropZone">Drag and drop your .lsx files here</div>
