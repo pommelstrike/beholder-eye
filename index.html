@@ -17,8 +17,8 @@
     body {
       font-family: 'Noto Sans', sans-serif;
       line-height: 1.6;
-      background-color: #191919; /* Updated Material Black */
-      color: #e0e0e0; /* Material Text Primary */
+      background-color: #1E1E2F; /* Industry-standard dark background */
+      color: #E8E8F2; /* Lighter text for better contrast */
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -27,25 +27,30 @@
 
     h1 {
       margin-bottom: 10px;
-      color: #a58c71; /* Updated Material Accent */
+      color: #FFC857; /* Highlight color for headings */
     }
 
     p {
       margin-bottom: 20px;
       text-align: center;
       max-width: 800px;
-      color: #B0B0B0; /* Material Text Secondary */
+      color: #A8A8B3; /* Slightly muted text for better readability */
     }
 
     #modeToggle {
       margin-bottom: 20px;
       padding: 10px 20px;
-      background-color: #5f6d45; /* Updated Material Green */
-      color: #191919;
+      background-color: #3D5A80; /* Button background */
+      color: #F0F0F3; /* Button text */
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 1em;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #modeToggle:hover {
+      background-color: #2E4457; /* Button hover background */
     }
 
     #dropZone {
@@ -53,45 +58,46 @@
       padding: 50px;
       width: 80%;
       max-width: 800px;
-      border: 2px dashed #5f6d45; /* Updated Material Green */
+      border: 2px dashed #98C1D9; /* Subtle highlight for drag-and-drop box */
       border-radius: 10px;
       text-align: center;
       font-size: 1.2em;
-      color: #B0B0B0; /* Material Text Secondary */
-      background-color: #0e0e0e; /* Slightly lighter black */
+      color: #B8C1C9; /* Slightly muted text for better readability */
+      background-color: #25263B; /* Dark but contrasting background */
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
     }
 
     #dropZone:hover {
-      background-color: #273f2f; /* Hover accent color */
-      color: #ffffff; /* Full white */
+      background-color: #31364B; /* Hover background for drag-and-drop */
+      color: #F8F8F8; /* Text color on hover */
     }
 
     #downloadButton {
       display: none;
       margin-top: 20px;
       padding: 10px 20px;
-      background-color: #5f6d45;
-      color: #191919;
+      background-color: #3D5A80;
+      color: #F0F0F3;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       text-decoration: none;
       font-size: 1em;
       text-align: center;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     #downloadButton:hover {
-      background-color: #a58c71;
-      color: white;
+      background-color: #2E4457;
+      color: #FFFFFF;
     }
 
     footer {
       margin-top: 40px;
       font-size: 0.9em;
       text-align: center;
-      color: #757575; /* Material Disabled Text */
+      color: #A8A8B3;
     }
   </style>
 </head>
