@@ -1,70 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LSX File Processor</title>
-  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-  <script defer src="app.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #191919;
-      color: #e0e0e0;
-      margin: 0;
-      padding: 0;
-    }
-    #dropZone {
-      border: 2px dashed #5f6d45;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      margin: 20px;
-    }
-    #downloadButton {
-      display: none;
-      padding: 10px 20px;
-      background-color: #5f6d45;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 1.2em;
-      display: inline-block;
-      text-align: center;
-      margin-top: 20px;
-    }
-    #downloadButton:hover {
-      background-color: #4a5433;
-    }
-    header, footer {
-      text-align: center;
-      margin: 20px;
-    }
-    footer p {
-      font-size: 0.8em;
-      color: #888888;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>pommelstrike's BeholderEye Tool</h1>
-    <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
-  </header>
-  <main>
-    <button id="modeToggle">Switch to Markdown Tree Mode</button>
-    <div id="dropZone">Drag and drop your files here</div>
-    <input type="file" id="fileInput" multiple style="display: none;" />
-    <a id="downloadButton">
-      <i class="fas fa-download"></i> Download Processed Files
-    </a>
-    <p id="patreonMessage" style="display: none;">
-      If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
-    </p>
-  </main>
-  <footer>
-    <p>Made with rage by pommelstrike</p>
-  </footer>
-</body>
+    <head>
+        <!-- Import Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Display:wght@400;700&display=swap" rel="stylesheet">
+        <!-- Import Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>LSX File Processor</title>
+        <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+        <script defer src="app.js"></script>
+        <style>
+            body {
+                font-family: 'Noto Sans Display', sans-serif; /* Updated font */
+                background-color: #191919;
+                color: #e0e0e0;
+                margin: 0;
+                padding: 0;
+                text-align: center; /* Center align all elements globally */
+            }
+            #dropZone {
+                border: 2px dashed #5f6d45;
+                padding: 20px;
+                cursor: pointer;
+                margin: 20px auto;
+                width: 80%; /* Restrict width for better UX */
+            }
+            #downloadButton {
+                display: none;
+                padding: 10px 20px;
+                background-color: #5f6d45;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-size: 1.2em;
+                margin-top: 20px;
+            }
+            #downloadButton:hover {
+                background-color: #4a5433;
+            }
+            header,
+            footer {
+                margin: 20px;
+            }
+            footer p {
+                font-size: 0.8em;
+                color: #888888;
+            }
+            a.patreon-link {
+                color: white;
+                text-decoration: none;
+                font-size: 1em;
+                background-color: #f96854;
+                padding: 8px 12px;
+                border-radius: 5px;
+                display: inline-block;
+                margin-top: 10px;
+            }
+            a.patreon-link:hover {
+                background-color: #d64b42;
+            }
+            a.patreon-link i {
+                margin-right: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>pommelstrike's BeholderEye Tool</h1>
+            <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
+        </header>
+        <main>
+            <div id="dropZone">Drag and drop your files here</div>
+            <button id="modeToggle" aria-label="Switch to Markdown Tree Mode" title="Switch to Markdown Tree Mode">
+                Switch to Markdown Tree Mode
+            </button>
+            <input type="file" id="fileInput" multiple style="display: none" />
+            <a id="downloadButton" aria-label="Download Processed Files" title="Download Processed Files">
+                <i class="fas fa-download"></i> Download Processed Files
+            </a>
+            <p id="patreonMessage" style="display: none">
+                If you like more tools like this, please consider supporting me on
+                <a
+                    href="https://www.patreon.com/pommelstrike"
+                    target="_blank"
+                    class="patreon-link"
+                    aria-label="Support me on Patreon"
+                    title="Support me on Patreon"
+                >
+                    <i class="fa-brands fa-patreon"></i> Support me on Patreon
+                </a>.
+            </p>
+        </main>
+        <footer>
+            <p>Made with rage by pommelstrike</p>
+        </footer>
+    </body>
 </html>
