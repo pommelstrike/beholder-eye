@@ -7,122 +7,36 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
   <script defer src="app.js"></script>
   <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* Add your styling here */
     body {
-      font-family: 'Noto Sans', sans-serif;
-      line-height: 1.6;
-      background-color: #191919; /* Updated Material Black */
-      color: #e0e0e0; /* Material Text Primary */
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #191919;
+      color: #e0e0e0;
     }
-
-    h1 {
-      margin-bottom: 10px;
-      color: #a58c71; /* Updated Material Accent */
-    }
-
-    p {
-      margin-bottom: 20px;
-      text-align: center;
-      max-width: 800px;
-      color: #B0B0B0; /* Material Text Secondary */
-    }
-
-    #modeToggle {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #5f6d45; /* Updated Material Green */
-      color: #191919;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1em;
-    }
-
     #dropZone {
-      margin-top: 20px;
-      padding: 50px;
-      width: 80%;
-      max-width: 800px;
-      border: 2px dashed #5f6d45; /* Updated Material Green */
-      border-radius: 10px;
+      border: 2px dashed #5f6d45;
+      padding: 20px;
       text-align: center;
-      font-size: 1.2em;
-      color: #B0B0B0; /* Material Text Secondary */
-      background-color: #0e0e0e; /* Slightly lighter black */
       cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #dropZone:hover {
-      background-color: #273f2f; /* Hover accent color */
-      color: #ffffff; /* Full white */
-    }
-
-    #downloadButton {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #5f6d45;
-      color: #191919;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 1em;
-      text-align: center;
-    }
-
-    #downloadButton:hover {
-      background-color: #a58c71;
-      color: white;
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      text-align: center;
-      color: #757575; /* Material Disabled Text */
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsf files for console compatibility.</h1>
+    <h1>pommelstrike's BeholderEye Tool</h1>
+    <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
   </header>
   <main>
     <button id="modeToggle">Switch to Markdown Tree Mode</button>
-    <p id="lsxSummary">
-      <strong>LSX Processing Mode:</strong> This mode allows you to process MaterialBank shader files. Drag and drop your `.lsx` files, and the tool will automatically repoint the shader references to ensure compatibility with Baldur's Gate 3 game engines. Once processed, you can download the updated `.lsx` files and an update report.
-    </p>
-    <p>
-      Use this mode if you are working on a modding project and need to adjust the shader references in your MaterialBank files for deployment. This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
-    </p>
-    <p id="bshdSummary" style="display: none;">
-      <strong>Markdown Tree Mode:</strong> This mode scans a folder and generates a Markdown tree structure of the directory. The tree highlights `.bshd` shader files, allowing you to review the assets in your modding project.
-    </p>
-    <p style="display: none;">
-      Use this mode if you need an organized view of all `.bshd` shader files in your project. It is especially useful for keeping track of assets in larger folders or verifying shader files in an asset directory.
-    </p>
-    <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
-    <div id="dropZone">Drag and drop your .lsx files here</div>
-    <input type="file" id="fileInput" multiple accept=".lsx" style="display: none;" />
-    <a id="downloadButton">Download Processed Files</a>
+    <div id="dropZone">Drag and drop your files here</div>
+    <input type="file" id="fileInput" multiple style="display: none;" />
+    <a id="downloadButton" style="display: none;">Download Processed Files</a>
     <p id="patreonMessage" style="display: none;">
-        If you like more tools like this, please consider supporting me to create more BG3 tools and mods <a href="https://www.patreon.com/pommelstrike" target="_blank">https://www.patreon.com/pommelstrike</a>, thank you.
+      If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
     </p>
   </main>
   <footer>
-    <p><a href="https://linktr.ee/pommelstrike" target="_blank">https://linktr.ee/pommelstrike</a></p>
+    <p>Made with rage by pommelstrike </p>
   </footer>
 </body>
 </html>
