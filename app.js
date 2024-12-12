@@ -104,9 +104,9 @@ function initializeApp() {
     });
 }
 
-// Utility function to process .lsx files
 async function handleFileProcessing(files) {
     console.log("Processing files:", files); // Debugging
+
     const processedFiles = [];
     const reportLines = [
         "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
@@ -139,7 +139,43 @@ async function handleFileProcessing(files) {
     return processedFiles;
 }
 
-// Utility function to generate a ZIP file
+// Function to process individual .lsx content
+function processLSXContent(content, fileName) {
+    console.log(`Processing content of file: ${fileName}`);
+    
+    // Example: Parse XML content (assuming .lsx files are XML-based)
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(content, "application/xml");
+
+    // Check for parsing errors
+    if (xmlDoc.getElementsByTagName("parsererror").length) {
+        throw new Error("Error parsing XML content");
+    }
+
+    // Example transformation: Update shader references
+    const shaderNodes = xmlDoc.getElementsByTagName("Shader");
+    const reportEntries = [];
+    for (let i = 0; i < shaderNodes.length; i++) {
+        const node = shaderNodes[i];
+        const oldShader = node.textContent.trim();
+        const newShader = `Updated_${oldShader}`; // Example transformation logic
+        node.textContent = newShader;
+
+        // Add details to the report
+        reportEntries.push({
+            materialName: node.parentNode.getAttribute("name") || "Unknown",
+            fileName,
+            shaderFile: newShader,
+        });
+    }
+
+    // Serialize the updated XML back to a string
+    const serializer = new XMLSerializer();
+    const updatedContent = serializer.serializeToString(xmlDoc);
+
+    return { updatedContent, reportEntries };
+}
+
 function generateZip(processedFiles) {
     console.log("Generating ZIP file for:", processedFiles); // Debugging
 
