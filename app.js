@@ -116,6 +116,12 @@ async function handleFileProcessing(files) {
     for (const file of files) {
         const content = await file.text();
 
+        // Validate if file contains the required XML structure
+        if (!content.includes('<region id="MaterialBank">') || !content.includes('<node id="MaterialBank">')) {
+            console.log(`Skipping file ${file.name} as it does not contain MaterialBank region.`);
+            continue; // Skip this file
+        }
+
         try {
             const { updatedContent, reportEntries } = processLSXContent(content, file.name);
             processedFiles.push({ name: file.name, content: updatedContent });
@@ -143,7 +149,7 @@ async function handleFileProcessing(files) {
 function processLSXContent(content, fileName) {
     console.log(`Processing content of file: ${fileName}`);
     
-    // Example: Parse XML content (assuming .lsx files are XML-based)
+    // Parse XML content
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(content, "application/xml");
 
@@ -152,22 +158,39 @@ function processLSXContent(content, fileName) {
         throw new Error("Error parsing XML content");
     }
 
-    // Example transformation: Update shader references
-    const shaderNodes = xmlDoc.getElementsByTagName("Shader");
-    const reportEntries = [];
-    for (let i = 0; i < shaderNodes.length; i++) {
-        const node = shaderNodes[i];
-        const oldShader = node.textContent.trim();
-        const newShader = `Updated_${oldShader}`; // Example transformation logic
-        node.textContent = newShader;
+    // Validate MaterialBank structure
+    const region = xmlDoc.querySelector('region[id="MaterialBank"]') || xmlDoc.querySelector("region[id='MaterialBank']");
+    const node = xmlDoc.querySelector('node[id="MaterialBank"]') || xmlDoc.querySelector("node[id='MaterialBank']");
 
-        // Add details to the report
-        reportEntries.push({
-            materialName: node.parentNode.getAttribute("name") || "Unknown",
-            fileName,
-            shaderFile: newShader,
-        });
+    if (!region || !node) {
+        throw new Error(`File ${fileName} is invalid: Missing <region> or <node> with id="MaterialBank".`);
     }
+
+    // Locate and update resource nodes
+    const resourceNodes = xmlDoc.querySelectorAll('node[id="Resource"]');
+    const reportEntries = [];
+
+    resourceNodes.forEach((resourceNode) => {
+        const sourceFileAttr = resourceNode.querySelector('attribute[id="SourceFile"]');
+        const nameAttr = resourceNode.querySelector('attribute[id="Name"]');
+
+        if (sourceFileAttr) {
+            const originalValue = sourceFileAttr.getAttribute("value");
+            const newValue = originalValue
+                .replace(/Public\/[^/]+\/Assets/, "Public/Shared/Assets")
+                .replace(/_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/, "");
+
+            // Update the attribute with the new value
+            sourceFileAttr.setAttribute("value", newValue);
+
+            // Add to the report
+            reportEntries.push({
+                materialName: nameAttr ? nameAttr.getAttribute("value") : "Unknown",
+                shaderFile: newValue.split("/").pop(),
+                fileName,
+            });
+        }
+    });
 
     // Serialize the updated XML back to a string
     const serializer = new XMLSerializer();
