@@ -12,7 +12,9 @@ function getUtcTimestamp() {
 
 // Function to handle folder traversal and build Markdown tree for .bshd files
 async function generateMarkdownTree(dataTransfer) {
-    const markdownLines = [];
+    const markdownLines = [
+        "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
+    ];
 
     async function traverseDirectory(entry, path = "") {
         if (entry.isFile && entry.name.endsWith(".bshd")) {
@@ -86,6 +88,8 @@ function initializeApp() {
     const dropZone = document.getElementById("dropZone");
     const fileInput = document.getElementById("fileInput");
     const downloadButton = document.getElementById("downloadButton");
+    const lsxSummary = document.getElementById("lsxSummary");
+    const bshdSummary = document.getElementById("bshdSummary");
     const statusMessage = document.createElement("div");
     statusMessage.id = "statusMessage";
     statusMessage.style.marginTop = "20px";
@@ -94,16 +98,20 @@ function initializeApp() {
 
     let currentMode = "lsx"; // Default mode
 
-    // Update drop zone text and styles dynamically
+    // Update mode and UI elements dynamically
     function updateMode() {
         if (currentMode === "lsx") {
             modeToggle.textContent = "Switch to Markdown Tree Mode";
             dropZone.textContent = ".lsx MaterialBank Shader Repoint Mode - Drag and drop your .lsx MaterialBank files here";
+            lsxSummary.style.display = "block";
+            bshdSummary.style.display = "none";
             dropZone.style.borderColor = "#5f6d45";
             dropZone.style.backgroundColor = "#0e0e0e";
         } else {
             modeToggle.textContent = "Switch to LSX Processing Mode";
             dropZone.textContent = ".bshd Shader File Detector Mode - Drag and drop your project Assets folder here";
+            lsxSummary.style.display = "none";
+            bshdSummary.style.display = "block";
             dropZone.style.borderColor = "#a58c71";
             dropZone.style.backgroundColor = "#273f2f";
         }
