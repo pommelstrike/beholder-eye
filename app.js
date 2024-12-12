@@ -168,7 +168,6 @@ function getUtcTimestamp() {
 async function generateMarkdownTree(dataTransfer) {
     const markdownLines = [];
 
-
     async function traverseDirectory(entry, path = "") {
         if (entry.isFile && entry.name.endsWith(".bshd")) {
             markdownLines.push(`${path}- ${entry.name}`);
