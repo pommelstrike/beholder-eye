@@ -1,3 +1,86 @@
+// Function to generate a UTC timestamp
+function getUtcTimestamp() {
+    const now = new Date();
+    const year = now.getUTCFullYear();
+    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(now.getUTCDate()).padStart(2, '0');
+    const hours = String(now.getUTCHours()).padStart(2, '0');
+    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+}
+
+// Function to handle folder traversal and build Markdown tree for .bshd files
+async function generateMarkdownTree(dataTransfer) {
+    const markdownLines = [];
+
+    async function traverseDirectory(entry, path = "") {
+        if (entry.isFile && entry.name.endsWith(".bshd")) {
+            markdownLines.push(`${path}- ${entry.name}`);
+        } else if (entry.isDirectory) {
+            const reader = entry.createReader();
+            const entries = await new Promise((resolve) => reader.readEntries(resolve));
+            markdownLines.push(`${path}- ${entry.name}/`);
+            for (const subEntry of entries) {
+                await traverseDirectory(subEntry, `${path}  `);
+            }
+        }
+    }
+
+    for (const item of dataTransfer.items) {
+        const entry = item.webkitGetAsEntry();
+        if (entry.isDirectory) {
+            await traverseDirectory(entry);
+        }
+    }
+
+    return markdownLines.join("\n");
+}
+
+// Function to process multiple .lsx files and generate a report
+async function handleFileProcessing(files) {
+    const processedFiles = [];
+    const reportLines = [
+        "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
+    ];
+    let globalIndex = 1;
+
+    for (const file of files) {
+        const content = await file.text();
+
+        try {
+            const { updatedContent, reportEntries } = processLSXContent(content, file.name);
+            processedFiles.push({ name: file.name, content: updatedContent });
+
+            reportEntries.forEach((entry) => {
+                reportLines.push(
+                    `${String(globalIndex++).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
+                );
+            });
+        } catch (error) {
+            console.error(`Error processing file ${file.name}: ${error.message}`);
+        }
+    }
+
+    const reportContent = reportLines.join("\n");
+    processedFiles.push({
+        name: "Update_Report.txt",
+        content: reportContent,
+    });
+
+    return processedFiles;
+}
+
+// Function to generate a ZIP file containing updated files and the report
+function generateZip(processedFiles) {
+    const zip = new JSZip();
+    processedFiles.forEach(({ name, content }) => {
+        zip.file(name, content);
+    });
+    return zip.generateAsync({ type: "blob" });
+}
+
+// Initialize the app
 function initializeApp() {
     const modeToggle = document.getElementById("modeToggle");
     const dropZone = document.getElementById("dropZone");
@@ -6,12 +89,12 @@ function initializeApp() {
     const statusMessage = document.createElement("div");
     statusMessage.id = "statusMessage";
     statusMessage.style.marginTop = "20px";
-    statusMessage.style.color = "#5f6d45";
+    statusMessage.style.color = "#03DAC5";
     document.body.appendChild(statusMessage);
 
-    let currentMode = "lsx"; // Default mode is .lsx
+    let currentMode = "lsx"; // Default mode
 
-    // Update drop zone text and button on mode toggle
+    // Update drop zone text and styles dynamically
     function updateMode() {
         if (currentMode === "lsx") {
             modeToggle.textContent = "Switch to Markdown Tree Mode";
@@ -88,3 +171,6 @@ function initializeApp() {
         }
     });
 }
+
+// Initialize on DOM content loaded
+document.addEventListener("DOMContentLoaded", initializeApp);
