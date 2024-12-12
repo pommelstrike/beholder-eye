@@ -17,8 +17,8 @@
     body {
       font-family: 'Noto Sans', sans-serif;
       line-height: 1.6;
-      background-color: #1e1e1e; /* Industry-standard dark background */
-      color: #eaeaea; /* High-contrast text */
+      background-color: #1e1e1e; /* Standard dark mode background */
+      color: #eaeaea; /* High-contrast light text */
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -28,13 +28,13 @@
 
     h1 {
       margin-bottom: 10px;
-      color: #d4af37; /* Gold-like accent for header */
+      color: #d4af37; /* Accent color for header */
     }
 
     p {
       margin-bottom: 20px;
       max-width: 800px;
-      color: #c7c7c7; /* Softer contrast for secondary text */
+      color: #c7c7c7; /* Softer secondary text */
     }
 
     #dropZone {
@@ -42,35 +42,34 @@
       padding: 50px;
       width: 80%;
       max-width: 800px;
-      border: 2px dashed #4caf50; /* High-visibility green border */
+      border: 2px dashed #4caf50; /* Green border for action */
       border-radius: 10px;
       text-align: center;
       font-size: 1.2em;
       color: #c7c7c7;
-      background-color: #292929; /* Slightly lighter than the background */
+      background-color: #292929; /* Slightly lighter background */
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
     }
 
     #dropZone:hover {
-      background-color: #3a3a3a; /* Highlight on hover */
-      color: #ffffff; /* Full white for hover text */
+      background-color: #3a3a3a; /* Highlight background on hover */
+      color: #ffffff; /* White text on hover */
     }
 
     #modeToggle {
       margin-top: 20px;
       padding: 12px 24px;
-      background-color: #4caf50; /* Green button for action */
+      background-color: #4caf50; /* Green button for toggle */
       color: #1e1e1e;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 1em;
-      text-align: center;
     }
 
     #modeToggle:hover {
-      background-color: #388e3c; /* Slightly darker green */
+      background-color: #388e3c; /* Darker green for hover */
       color: #ffffff;
     }
 
@@ -96,7 +95,7 @@
       margin-top: 40px;
       font-size: 0.9em;
       text-align: center;
-      color: #9e9e9e; /* Muted text for footer */
+      color: #9e9e9e; /* Muted footer text */
     }
   </style>
 </head>
@@ -118,17 +117,16 @@
     <p id="bshdSummary" style="display: none;">
       <strong>Markdown Tree Mode:</strong> This mode scans your project folder and generates a Markdown tree structure of the directory with .bshd shader files locations within your mod project.
     </p>
-    <p>
-      Note: This tool processes all files locally within your browser. Nothing is ever uploaded.
-    </p>
-    <p>
-      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
-    </p>
     <div id="dropZone">Drag and drop your .lsx files here</div>
     <button id="modeToggle">Switch to Markdown Tree Mode</button>
     <a id="downloadButton">Download Processed Files</a>
     <p id="patreonMessage" style="display: none;">
         If you like more tools like this, please consider supporting me to create more BG3 tools and mods <a href="https://www.patreon.com/pommelstrike" target="_blank">https://www.patreon.com/pommelstrike</a>, thank you.
+    </p>
+    <p>
+      <strong>Note:</strong> This tool processes all files locally within your browser. Nothing is ever uploaded.
+      <br>
+      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
     </p>
   </main>
   <footer>
