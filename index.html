@@ -1,215 +1,171 @@
-// Function to generate a UTC timestamp
-function getUtcTimestamp() {
-    const now = new Date();
-    const year = now.getUTCFullYear();
-    const month = String(now.getUTCMonth() + 1).padStart(2, '0'); // Months are zero-based
-    const day = String(now.getUTCDate()).padStart(2, '0');
-    const hours = String(now.getUTCHours()).padStart(2, '0');
-    const minutes = String(now.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
-}
-
-// Function to process and validate .lsx content
-function processLSXContent(fileContent, fileName) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(fileContent, "text/xml");
-
-    const region = xmlDoc.querySelector("region[id='MaterialBank']");
-    const node = xmlDoc.querySelector("node[id='MaterialBank']");
-
-    if (!region || !node) {
-        throw new Error(`File ${fileName} is invalid: Missing required <region> or <node> with id='MaterialBank'.`);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSX File Processor</title>
+  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script defer src="app.js"></script>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    const resourceNodes = xmlDoc.querySelectorAll("node[id='Resource']");
-    let reportEntries = [];
-    resourceNodes.forEach((resourceNode) => {
-        const sourceFileAttr = resourceNode.querySelector("attribute[id='SourceFile']");
-        const nameAttr = resourceNode.querySelector("attribute[id='Name']");
-        if (sourceFileAttr) {
-            const originalValue = sourceFileAttr.getAttribute("value");
-            const newValue = originalValue
-                .replace(/Public\/[^/]+\/Assets/, "Public/Shared/Assets")
-                .replace(/_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/, "");
-
-            sourceFileAttr.setAttribute("value", newValue);
-
-            reportEntries.push({
-                materialName: nameAttr ? nameAttr.getAttribute("value") : "Unknown",
-                shaderFile: newValue.split("/").pop(),
-                fileName: fileName,
-            });
-        }
-    });
-
-    const serializer = new XMLSerializer();
-    const updatedContent = serializer.serializeToString(xmlDoc);
-    return { updatedContent, reportEntries };
-}
-
-// Function to process multiple .lsx files and generate a report
-async function handleFileProcessing(files) {
-    const processedFiles = [];
-    const reportLines = [
-        "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
-    ];
-    let globalIndex = 1;
-
-    for (const file of files) {
-        const content = await file.text();
-
-        try {
-            const { updatedContent, reportEntries } = processLSXContent(content, file.name);
-            processedFiles.push({ name: file.name, content: updatedContent });
-
-            reportEntries.forEach((entry) => {
-                reportLines.push(
-                    `${String(globalIndex++).padStart(3, "0")}: Material Updated for: ${entry.materialName}\n    File: ${entry.fileName}\n    Shader: ${entry.shaderFile}\n`
-                );
-            });
-        } catch (error) {
-            console.error(`Error processing file ${file.name}: ${error.message}`);
-        }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      line-height: 1.6;
+      background-color: #1e1e1e; /* Standard dark mode background */
+      color: #eaeaea; /* High-contrast light text */
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
 
-    const reportContent = reportLines.join("\n");
-    processedFiles.push({
-        name: "Update_Report.txt",
-        content: reportContent,
-    });
-
-    return processedFiles;
-}
-
-// Function to generate a ZIP file containing updated files and the report
-function generateZip(processedFiles) {
-    const zip = new JSZip();
-    processedFiles.forEach(({ name, content }) => {
-        zip.file(name, content);
-    });
-    return zip.generateAsync({ type: "blob" });
-}
-
-// Function to handle folder traversal and build Markdown tree for .bshd files
-async function generateMarkdownTree(dataTransfer) {
-    const markdownLines = [
-        "If you like more tools like this, please consider supporting me to create more BG3 tools and mods https://www.patreon.com/pommelstrike , thank you.\n\n"
-    ];
-
-    async function traverseDirectory(entry, path = "") {
-        if (entry.isFile && entry.name.endsWith(".bshd")) {
-            markdownLines.push(`${path}- ${entry.name}`);
-        } else if (entry.isDirectory) {
-            const reader = entry.createReader();
-            const entries = await new Promise((resolve) => reader.readEntries(resolve));
-            markdownLines.push(`${path}- ${entry.name}/`);
-            for (const subEntry of entries) {
-                await traverseDirectory(subEntry, `${path}  `);
-            }
-        }
+    h1 {
+      margin-bottom: 10px;
+      color: #d4af37; /* Accent color for header */
     }
 
-    for (const item of dataTransfer.items) {
-        const entry = item.webkitGetAsEntry();
-        if (entry.isDirectory) {
-            await traverseDirectory(entry);
-        }
+    p {
+      margin-bottom: 20px;
+      max-width: 800px;
+      color: #c7c7c7; /* Softer secondary text */
     }
 
-    return markdownLines.join("\n");
-}
-
-// Initialize the app
-function initializeApp() {
-    const modeToggle = document.getElementById("modeToggle");
-    const dropZone = document.getElementById("dropZone");
-    const fileInput = document.getElementById("fileInput");
-    const downloadButton = document.getElementById("downloadButton");
-    const statusMessage = document.createElement("div");
-    statusMessage.id = "statusMessage";
-    statusMessage.style.marginTop = "20px";
-    statusMessage.style.color = "#03DAC5";
-    document.body.appendChild(statusMessage);
-
-    let currentMode = "lsx"; // Default mode
-
-    // Update mode and UI elements dynamically
-    function updateMode() {
-        if (currentMode === "lsx") {
-            modeToggle.textContent = "Switch to Markdown Tree Mode";
-            dropZone.textContent = ".lsx MaterialBank Shader Repoint Mode - Drag and drop your .lsx MaterialBank files here";
-            dropZone.style.borderColor = "#4caf50";
-            dropZone.style.backgroundColor = "#292929";
-        } else {
-            modeToggle.textContent = "Switch to LSX Processing Mode";
-            dropZone.textContent = ".bshd Shader File Detector Mode - Drag and drop your project Assets folder here";
-            dropZone.style.borderColor = "#a58c71";
-            dropZone.style.backgroundColor = "#273f2f";
-        }
+    #dropZone {
+      margin-top: 20px;
+      padding: 50px;
+      width: 80%;
+      max-width: 800px;
+      border: 2px dashed #4caf50; /* Green border for action */
+      border-radius: 10px;
+      text-align: center;
+      font-size: 1.2em;
+      color: #c7c7c7;
+      background-color: #292929; /* Slightly lighter background */
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
     }
 
-    modeToggle.addEventListener("click", () => {
-        currentMode = currentMode === "lsx" ? "bshd" : "lsx";
-        updateMode();
-    });
+    #dropZone:hover {
+      background-color: #3a3a3a; /* Highlight background on hover */
+      color: #ffffff; /* White text on hover */
+    }
 
-    updateMode(); // Initialize with the default mode
+    #modeToggle {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #4caf50; /* Green button for toggle */
+      color: #1e1e1e;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
 
-    dropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropZone.style.backgroundColor = currentMode === "lsx" ? "#3a3a3a" : "#5f6d45";
-    });
+    #modeToggle:hover {
+      background-color: #388e3c; /* Darker green for hover */
+      color: #ffffff;
+    }
 
-    dropZone.addEventListener("dragleave", () => {
-        dropZone.style.backgroundColor = currentMode === "lsx" ? "#292929" : "#273f2f";
-    });
+    #downloadButton {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #4caf50;
+      color: #1e1e1e;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1em;
+    }
 
-    dropZone.addEventListener("drop", async (e) => {
-        e.preventDefault();
-        dropZone.style.backgroundColor = currentMode === "lsx" ? "#292929" : "#273f2f";
+    #downloadButton:hover {
+      background-color: #388e3c;
+      color: #ffffff;
+    }
 
-        if (currentMode === "lsx") {
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                fileInput.dispatchEvent(new Event("change"));
-            }
-        } else if (currentMode === "bshd") {
-            statusMessage.textContent = "Generating Markdown tree... Please wait.";
-            try {
-                const markdownTree = await generateMarkdownTree(e.dataTransfer);
-                const blob = new Blob([markdownTree], { type: "text/markdown" });
-                const url = URL.createObjectURL(blob);
-                downloadButton.href = url;
-                downloadButton.download = `Markdown_Tree_${getUtcTimestamp()}.md`;
-                downloadButton.style.display = "block";
-                downloadButton.textContent = "Download Markdown Tree";
-                statusMessage.textContent = "All Done!";
-            } catch (error) {
-                console.error("Error generating markdown tree:", error);
-                statusMessage.textContent = "An error occurred. Please try again.";
-            }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      text-align: center;
+      color: #9e9e9e; /* Muted footer text */
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsf files for console compatibility.</h1>
+  </header>
+  <main>
+    <p id="lsxSummary">
+      <strong>Materialbank .LSX Processing Mode:</strong> This mode allows you to batch process MaterialBank .lsx files. Drag and drop your .lsx files, and the tool will automatically repoint the shader references to ensure compatibility with Baldur's Gate 3 for PC but more importantly for console.
+    </p>
+    <p>
+      After drag and drop of .lsx files:
+      <br>
+      - A .zip file will be available to download with updated .lsx files.
+      <br>
+      - An update report text file explaining the changes made.
+    </p>
+    <p id="bshdSummary" style="display: none;">
+      <strong>Markdown Tree Mode:</strong> This mode scans your project folder and generates a Markdown tree structure of the directory with .bshd shader files locations within your mod project.
+    </p>
+    <div id="dropZone">Drag and drop your .lsx files here</div>
+    <button id="modeToggle">Switch to Markdown Tree Mode</button>
+    <a id="downloadButton">Download Processed Files</a>
+    <p id="patreonMessage" style="display: none;">
+        If you like more tools like this, please consider supporting me to create more BG3 tools and mods <a href="https://www.patreon.com/pommelstrike" target="_blank">https://www.patreon.com/pommelstrike</a>, thank you.
+    </p>
+    <p>
+      <strong>Note:</strong> This tool processes all files locally within your browser. Nothing is ever uploaded.
+      <br>
+      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
+    </p>
+  </main>
+  <footer>
+    <p><a href="https://linktr.ee/pommelstrike" target="_blank">https://linktr.ee/pommelstrike</a></p>
+  </footer>
+
+  <script>
+    // Add drag-and-drop support for #dropZone
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+      
+      // Highlight the drop zone when a file is dragged over
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Prevent default browser behavior
+        dropZone.style.backgroundColor = '#2C2C2C';
+      });
+      
+      // Revert the drop zone background when dragging leaves
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.backgroundColor = '#1F1F1F';
+      });
+      
+      // Handle file drop event
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); // Prevent default browser behavior
+        dropZone.style.backgroundColor = '#1F1F1F';
+        const files = e.dataTransfer.files; // Get dropped files
+        if (files.length > 0) {
+          fileInput.files = files; // Assign files to hidden input for processing
+          fileInput.dispatchEvent(new Event('change')); // Trigger change event
         }
+      });
+      
+      // Trigger file selection dialog when the drop zone is clicked
+      dropZone.addEventListener('click', () => {
+        fileInput.click();
+      });
     });
-
-    fileInput.addEventListener("change", async (event) => {
-        if (currentMode === "lsx") {
-            statusMessage.textContent = "Processing files... Please wait.";
-            const files = Array.from(event.target.files);
-            const processedFiles = await handleFileProcessing(files);
-            const zipBlob = await generateZip(processedFiles);
-
-            const timestamp = getUtcTimestamp();
-            const url = URL.createObjectURL(zipBlob);
-            downloadButton.href = url;
-            downloadButton.download = `LSX_processed_files_${timestamp}.zip`;
-            downloadButton.style.display = "block";
-            downloadButton.textContent = "Download Processed Files";
-            statusMessage.textContent = "All Done!";
-        }
-    });
-}
-
-// Initialize on DOM content loaded
-document.addEventListener("DOMContentLoaded", initializeApp);
+  </script>
+</body>
+</html>
