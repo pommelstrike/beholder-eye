@@ -1,134 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LSX File Processor</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
   <script defer src="app.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    /* General Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* Add your styling here */
     body {
-      font-family: 'Noto Sans', sans-serif;
-      line-height: 1.6;
-      background-color: #191919; /* Updated Material Black */
-      color: #e0e0e0; /* Material Text Primary */
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #191919;
+      color: #e0e0e0;
     }
-
-    h1 {
-      margin-bottom: 10px;
-      color: #a58c71; /* Updated Material Accent */
-    }
-
-    p {
-      margin-bottom: 20px;
-      text-align: center;
-      max-width: 800px;
-      color: #B0B0B0; /* Material Text Secondary */
-    }
-
-    #modeToggle {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #5f6d45; /* Updated Material Green */
-      color: #191919;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1em;
-    }
-
     #dropZone {
-      margin-top: 20px;
-      padding: 50px;
-      width: 80%;
-      max-width: 800px;
-      border: 2px dashed #5f6d45; /* Updated Material Green */
-      border-radius: 10px;
+      border: 2px dashed #5f6d45;
+      padding: 20px;
       text-align: center;
-      font-size: 1.2em;
-      color: #B0B0B0; /* Material Text Secondary */
-      background-color: #0e0e0e; /* Slightly lighter black */
       cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #dropZone:hover {
-      background-color: #273f2f; /* Hover accent color */
-      color: #ffffff; /* Full white */
-    }
-
-    #downloadButton {
-      display: none;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #5f6d45; /* High contrast green */
-      color: #ffffff; /* White text */
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-      font-size: 1em;
-      text-align: center;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    #downloadButton i {
-      margin-right: 10px;
-    }
-
-    #downloadButton:hover {
-      background-color: #a58c71; /* Material Accent Color */
-      transform: scale(1.05); /* Subtle hover effect */
-    }
-
-    footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      text-align: center;
-      color: #757575; /* Material Disabled Text */
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsx files for console compatibility.</h1>
+    <h1>pommelstrike's BeholderEye Tool</h1>
+    <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
   </header>
   <main>
     <button id="modeToggle">Switch to Markdown Tree Mode</button>
-    <p id="lsxSummary">
-      <strong>LSX Processing Mode:</strong> This mode allows you to process MaterialBank shader files. Once you have convert the .lsf to .lsx using LSlib, Drag and drop your .lsx files, and the tool will automatically repoint the shader references in MaterialBank .lsx files to ensure compatibility with Baldur's Gate 3 game engines. Once processed, you can download the updated .lsx files and an update report.
-    </p>
-    <p>
-      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
-    </p>
-    <p id="bshdSummary" style="display: none;">
-      <strong>Markdown Tree Mode:</strong> This mode scans a folder and generates a Markdown tree structure of the directory. The tree highlights the location of .bshd shader files, allowing you to locate and remove them.
-    </p>
-    <p style="display: none;">
-       you only need to drop "\steamapps\common\Baldurs Gate 3\Data\Public\mod_project_name_uuid\Assets folder" but you also scan all your public folder.
-    </p>
-    <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
-    <div id="dropZone">Drag and drop your .lsx files here</div>
-    <input type="file" id="fileInput" multiple accept=".lsx" style="display: none;" />
-    <a id="downloadButton"><i class="fas fa-download"></i> Download Processed Files</a>
+    <div id="dropZone">Drag and drop your files here</div>
+    <input type="file" id="fileInput" multiple style="display: none;" />
+<a id="downloadButton" style="display: none; padding: 10px 20px; background-color: #5f6d45; color: white; text-decoration: none; border-radius: 5px; font-size: 1.2em; display: inline-block; text-align: center;">
+    <i class="fas fa-download"></i> Download Processed Files
+</a>
     <p id="patreonMessage" style="display: none;">
-        If you like more tools like this, please consider supporting me to create more BG3 tools and mods <a href="https://www.patreon.com/pommelstrike" target="_blank">https://www.patreon.com/pommelstrike</a>, thank you.
+      If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
     </p>
   </main>
   <footer>
-    <p><a href="https://linktr.ee/pommelstrike" target="_blank">https://linktr.ee/pommelstrike</a></p>
+    <p>Made with rage by pommelstrike </p>
+  </footer>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LSX File Processor</title>
+  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script defer src="app.js"></script>
+  <style>
+    /* Add your styling here */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #191919;
+      color: #e0e0e0;
+    }
+    #dropZone {
+      border: 2px dashed #5f6d45;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>pommelstrike's BeholderEye Tool</h1>
+    <p>Drag and drop .lsx files to fix shader references or generate a Markdown tree for .bshd files.</p>
+  </header>
+  <main>
+    <button id="modeToggle">Switch to Markdown Tree Mode</button>
+    <div id="dropZone">Drag and drop your files here</div>
+    <input type="file" id="fileInput" multiple style="display: none;" />
+    <a id="downloadButton" style="display: none;">Download Processed Files</a>
+    <p id="patreonMessage" style="display: none;">
+      If you like more tools like this, please consider supporting me on <a href="https://www.patreon.com/pommelstrike" target="_blank">Patreon</a>.
+    </p>
+  </main>
+  <footer>
+    <p>Made with rage by pommelstrike </p>
   </footer>
 </body>
 </html>
