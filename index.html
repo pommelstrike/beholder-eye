@@ -17,8 +17,8 @@
     body {
       font-family: 'Noto Sans', sans-serif;
       line-height: 1.6;
-      background-color: #1E1E2F; /* Industry-standard dark background */
-      color: #E8E8F2; /* Lighter text for better contrast */
+      background-color: #182625; /* Material Black */
+      color: #e0e0e0; /* Material Text Primary */
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -27,30 +27,14 @@
 
     h1 {
       margin-bottom: 10px;
-      color: #FFC857; /* Highlight color for headings */
+      color: #3D5A73; /* Material Purple */
     }
 
     p {
       margin-bottom: 20px;
       text-align: center;
       max-width: 800px;
-      color: #A8A8B3; /* Slightly muted text for better readability */
-    }
-
-    #modeToggle {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #3D5A80; /* Button background */
-      color: #F0F0F3; /* Button text */
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    #modeToggle:hover {
-      background-color: #2E4457; /* Button hover background */
+      color: #B0B0B0; /* Material Text Secondary */
     }
 
     #dropZone {
@@ -58,46 +42,45 @@
       padding: 50px;
       width: 80%;
       max-width: 800px;
-      border: 2px dashed #98C1D9; /* Subtle highlight for drag-and-drop box */
+      border: 2px dashed #455559; /* Material Teal */
       border-radius: 10px;
       text-align: center;
       font-size: 1.2em;
-      color: #B8C1C9; /* Slightly muted text for better readability */
-      background-color: #25263B; /* Dark but contrasting background */
+      color: #B0B0B0; /* Material Text Secondary */
+      background-color: #2F3D40; /* Slightly lighter black */
       cursor: pointer;
       transition: background-color 0.3s, color 0.3s;
     }
 
     #dropZone:hover {
-      background-color: #31364B; /* Hover background for drag-and-drop */
-      color: #F8F8F8; /* Text color on hover */
+      background-color: #28403D; /* Slightly lighter hover */
+      color: #ffffff; /* Full white */
     }
 
     #downloadButton {
       display: none;
       margin-top: 20px;
       padding: 10px 20px;
-      background-color: #3D5A80;
-      color: #F0F0F3;
+      background-color: #03DAC5;
+      color: #121212;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       text-decoration: none;
       font-size: 1em;
       text-align: center;
-      transition: background-color 0.3s, color 0.3s;
     }
 
     #downloadButton:hover {
-      background-color: #2E4457;
-      color: #FFFFFF;
+      background-color: #BB86FC;
+      color: white;
     }
 
     footer {
       margin-top: 40px;
       font-size: 0.9em;
       text-align: center;
-      color: #A8A8B3;
+      color: #757575; /* Material Disabled Text */
     }
   </style>
 </head>
@@ -106,28 +89,27 @@
     <h1><strong>pommelstrike's BeholderEye:</strong> Fix your materialbank .lsf files for console compatibility.</h1>
   </header>
   <main>
-    <button id="modeToggle">Switch to Markdown Tree Mode</button>
-    <p id="lsxSummary">
-      <strong>Materialbank .LSX Processing Mode:</strong> This mode allows you to batch process MaterialBank .lsx files. Drag and drop your .lsx files, and the tool will automatically repoint the shader references to ensure compatibility with Baldur's Gate 3 for PC but more importantly for console.
+    <!-- Button for switching to .lsx processing mode -->
+    <button id="lsxModeButton" style="margin-bottom: 10px; padding: 10px 20px; background-color: #5f6d45; color: #191919; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">
+      Switch to <i class='fas fa-typewriter'></i> .lsx materialbank shader repoint Mode
+    </button>
+    <!-- Button for switching to .bshd Markdown tree mode -->
+    <button id="bshdModeButton" style="margin-bottom: 20px; padding: 10px 20px; background-color: #a58c71; color: #191919; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">
+      Switch to <i class='fas fa-eye'></i> .BSHD Shader File detector Mode
+    </button>
+    <p>
+      Materialbank parser for BG3 .lsx source files to redirect MOD KIT generated project shaders to pre-packaged BG3 game shaders for Game Console compatibility.
     </p>
     <p>
-      After drag and drop of .lsx files:
-      <br>
-      - A .zip file will be available to download with updated .lsx files.
-      <br>
-      - An update report text file explaining the changes made.
+      Pull the .lsf files into LSLIB's "LSF to LSX" tab from "Baldurs Gate 3\Data\Public\PROJECTNAME_UUID\Content\[PAK]_\PROJECTNAME". Do not use BG3 Multitool. Use the .lsf files from the Project folders as listed above. The one piece is real.
     </p>
-    <p id="bshdSummary" style="display: none;">
-      <strong>Markdown Tree Mode:</strong> This mode scans your project folder and generates a Markdown tree structure of the directory with .bshd shader files locations within your mod project.
-    </p>
-    <p style="display: none;">
-      Note: This tool processes all files locally within your browser. Nothing is ever uploaded.
-    </p>
-    <p>
-      This process ensures your shaders will work seamlessly with pre-packaged BG3 game shaders for console compatibility.
-    </p>
+    <p><strong>Note:</strong> This tool processes files locally within your browser. Nothing is ever uploaded to any server.</p>
+    <!-- Drag-and-drop area for file uploads -->
     <div id="dropZone">Drag and drop your .lsx files here</div>
+    <button id="modeToggle">Switch to Markdown Tree Mode</button>
+    <!-- Hidden file input for fallback or manual file selection -->
     <input type="file" id="fileInput" multiple accept=".lsx" style="display: none;" />
+    <!-- Download button for processed files -->
     <a id="downloadButton">Download Processed Files</a>
     <p id="patreonMessage" style="display: none;">
         If you like more tools like this, please consider supporting me to create more BG3 tools and mods <a href="https://www.patreon.com/pommelstrike" target="_blank">https://www.patreon.com/pommelstrike</a>, thank you.
@@ -136,5 +118,39 @@
   <footer>
     <p><a href="https://linktr.ee/pommelstrike" target="_blank">https://linktr.ee/pommelstrike</a></p>
   </footer>
+  <script>
+    // Add drag-and-drop support for #dropZone
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+
+      // Highlight the drop zone when a file is dragged over
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Prevent default browser behavior
+        dropZone.style.backgroundColor = '#2C2C2C';
+      });
+
+      // Revert the drop zone background when dragging leaves
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.style.backgroundColor = '#1F1F1F';
+      });
+
+      // Handle file drop event
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault(); // Prevent default browser behavior
+        dropZone.style.backgroundColor = '#1F1F1F';
+        const files = e.dataTransfer.files; // Get dropped files
+        if (files.length > 0) {
+          fileInput.files = files; // Assign files to hidden input for processing
+          fileInput.dispatchEvent(new Event('change')); // Trigger change event
+        }
+      });
+
+      // Trigger file selection dialog when the drop zone is clicked
+      dropZone.addEventListener('click', () => {
+        fileInput.click();
+      });
+    });
+  </script>
 </body>
 </html>
