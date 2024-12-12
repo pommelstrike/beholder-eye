@@ -66,6 +66,25 @@
             a.patreon-link i {
                 margin-right: 8px;
             }
+            .feature-block {
+                background-color: #252525; /* Slightly lighter than body background */
+                border: 1px solid #5f6d45; /* Matches themed styling */
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px auto;
+                width: 80%; /* Consistent width */
+                text-align: left; /* Align text for readability */
+            }
+            .feature-block h4 {
+                color: #e0e0e0;
+                margin-bottom: 10px;
+            }
+            .feature-block ul {
+                padding-left: 20px;
+            }
+            .feature-block li {
+                margin-bottom: 10px;
+            }
         </style>
     </head>
     <body>
@@ -94,6 +113,44 @@
                     <i class="fa-brands fa-patreon"></i> Support me on Patreon
                 </a>.
             </p>
+            <div class="feature-block">
+                <h4>1. MaterialBank Shader Repoint Mode</h4>
+                <ul>
+                    <li><strong>Function:</strong> Processes <code>.lsx</code> files to update shader references and ensures compatibility with Baldur's Gate 3.</li>
+                    <li><strong>Key Actions:</strong>
+                        <ul>
+                            <li>Validates the presence of <code>&lt;region id="MaterialBank"&gt;</code> and <code>&lt;node id="MaterialBank"&gt;</code> in <code>.lsx</code> files.</li>
+                            <li>Updates shader file paths (e.g., changing <code>Public/&lt;mod_name&gt;/Assets</code> to <code>Public/Shared/Assets</code>).</li>
+                            <li>Removes unnecessary GUID suffixes from shader file references.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Output:</strong>
+                        <ul>
+                            <li>Updated <code>.lsx</code> files.</li>
+                            <li>A detailed <code>Update_Report.txt</code> summarizing the changes.</li>
+                            <li>Packaged as a <code>.zip</code> file for download.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="feature-block">
+                <h4>2. Markdown Tree Mode</h4>
+                <ul>
+                    <li><strong>Function:</strong> Generates a Markdown tree structure for a directory of <code>.bshd</code> shader files.</li>
+                    <li><strong>Key Actions:</strong>
+                        <ul>
+                            <li>Recursively scans directories for <code>.bshd</code> files.</li>
+                            <li>Formats the directory structure into a Markdown file.</li>
+                            <li>Highlights <code>.bshd</code> files for quick reference.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Output:</strong>
+                        <ul>
+                            <li>A downloadable <code>.md</code> file containing the directory tree structure.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </main>
         <footer>
             <p>Made with rage by pommelstrike</p>
